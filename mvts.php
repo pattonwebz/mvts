@@ -96,4 +96,27 @@ if ( !function_exists( 'mvts_menu_page' ) ) {
 	<?php }
 } // end !function_exists( 'mvts_menu_page' )
 
+// add action to trigger settings creation used by the admin page
+
+add_action( 'admin_init', 'register_mvts_settings' );
+	
+if ( !function_exists('register_mvts_settings') ) {
+	function register_mvts_settings() {
+		// example syntax: register_setting( 'my_options_group', 'my_option_name', 'intval' ); 
+		register_setting( 'mvtsBasic-group', 'mvtsBasic1', 'mvtsBasic1_validate' );
+		register_setting( 'mvtsBasic-group', 'mvtsBasic2', 'mvtsBasic2_validate' );
+		add_settings_section('mvtsBasic', 'Basic Settings', 'basic_section_text', 'mvtsBasic-group');
+		add_settings_field('mvtsBaisc1_id', 'MVTS Basic Text Input', 'mvtsBasic_setting_string', 'mvts', 'mvtsBasic');
+	}
+} // end !function_exists('register_mvts_settings')
+
+function basic_section_text() {
+echo '<p>Main description of this section here.</p>';
+}
+
+function mvtsBasic_setting_string() {
+$options = get_option('plugin_options');
+echo "<input id='plugin_text_string' name='plugin_options[text_string]' size='40' type='text' value='{$options['text_string']}' />";
+}
+
 ?>
