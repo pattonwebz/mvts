@@ -13,20 +13,75 @@ License: GPL2
  * Enqueue Javascript
  * ============================================================= */
 
-// register and enqueue the dependancy scripts - cohorts.js
+// register and enqueue the dependancy scripts - cohorts.js, jquery library
 
 add_action( 'wp_enqueue_scripts', 'load_mvts_scripts' );
 
 if ( !function_exists( 'load_mvts_scripts' ) ) {
     function load_mvts_scripts() {
-        if ( !is_admin() ) {
+    	$options = get_option('mvtsBasic');
+        // not an admin page and plugin is turned on
+        if ( !is_admin() && $options['mvtsOnOff'] == '1' ) { 
 			wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.js', array(), 1.0, true );
             wp_enqueue_script( 'cohorts' );
-
+            wp_enqueue_script( 'jquery' );
         }
     }
 } // end !function_exists( 'load_mvts_scripts' )
 
+add_action( 'wp_footer', 'inline_mvtsTest_scripts' );
+if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
+    function inline_mvtsTest_scripts() { 
+    	$options = get_option('mvtsBasic');
+    	?>
+		<script type="text/javascript">
+		var $ = jQuery.noConflict();
+		$(document).ready(function() {
+			var <?php echo $options[testName]; ?> = new Cohorts.Test({
+				name: 'MVTS_',
+				scope: 1, // Sets the scope for the test and custom variable: 1: Visitor, 2: Session, 3: Page 
+				cv_slot: 5, // Sets the custom variable slot used in the GoogleAnalyticsAdapter
+				sample: 1,
+				cohorts: {
+					MVTS_default_: {
+						onChosen: function() {
+							// nothing is changed here but it's still tracked
+						}
+					},
+					MVTS_variant_: {
+						onChosen: function() {
+							$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + " background-color: purple");
+						}
+					},
+				},
+				storageAdapter: {
+				nameSpace: 'mvts',
+				trackEvent: function(category, action, opt_label, opt_value, int_hit, cv_slot, scope) { 	
+					
+					ga('send', 'event', category, action, opt_label, opt_value, int_hit);
+					
+				},
+				onInitialize: function(inTest, testName, cohort, cv_slot, scope) {
+					if(inTest && scope !== 3) {
+						this.trackEvent(this.nameSpace, testName, cohort, 0, true, cv_slot, scope);
+					}
+				},
+				onEvent: function(testName, cohort, eventName) {
+					this.trackEvent(this.nameSpace, testName, cohort + ' | ' + eventName, 0, false);
+				}
+			}
+			});	
+			$('<?php echo $options[target]; ?>').click(function() {
+				<?php echo $options[testName]; ?>.event('Converted'); // Track any evens with your storage adapter
+			});
+
+		});
+		</script>
+
+		<?php 
+	}
+
+} // end !function_exists( 'inject_mvtsTest_scripts' )
 
 // create an admin page for settings
 
@@ -105,6 +160,7 @@ if ( !function_exists('register_mvts_settings') ) {
 		register_setting( 'mvtsBasic-group', 'mvtsBasic', 'mvtsBasic_validate' );
 		add_settings_section('mvtsBasic', 'Basic Settings', 'basic_section_text', 'mvtsBasic-group');
 		add_settings_field('mvtsOnOff', 'Turn On or Off the tests', 'mvtsCheckboxOnOff','mvtsBasic-group', 'mvtsBasic');
+		add_settings_field('testName', 'A Name to identify the test', 'mvtsBasic_testName_string', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('target', 'Element to target', 'mvtsBasic_target_string', 'mvtsBasic-group', 'mvtsBasic');
 		
 	}
@@ -137,10 +193,18 @@ function mvtsBasic_target_string() {
 	echo "<input id='target' name='mvtsBasic[target]' size='40' type='text' value='{$options['target']}' />";
 }
 
+function mvtsBasic_testName_string() {
+	$options = get_option('mvtsBasic');
+	// commented out code for debug
+	// print_r($options);
+	echo "<input id='testName' name='mvtsBasic[testName]' size='40' type='text' value='{$options['testName']}' />";
+}
+
 
 function mvtsBasic_validate($input) {
 	$newinput['mvtsOnOff'] = $input['mvtsOnOff'];
 	$newinput['target'] = $input['target'];
+	$newinput['testName'] = $input['testName'];
 	/*if(!preg_match('/^[a-z0-9]{32}$/i', $newinput['basic_section1'])) {
 	$newinput['basic_section1'] = '';
 	}*/
