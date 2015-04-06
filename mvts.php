@@ -176,7 +176,7 @@ if ( !function_exists('register_mvts_settings') ) {
 		add_settings_field('mvtsOnOff', 'Turn On or Off the tests', 'mvtsCheckboxOnOff','mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('testName', 'A Name to identify the test', 'mvtsBasic_testName_string', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('target', 'Element to target', 'mvtsBasic_target_string', 'mvtsBasic-group', 'mvtsBasic');
-		
+		add_settings_field('selectStyle', 'Style Element to Split Test', 'mvtsBaisc_style_select', 'mvtsBasic-group', 'mvtsBasic');
 	}
 } // end !function_exists('register_mvts_settings')
 
@@ -198,7 +198,21 @@ function basic_section_text() {
 }
 
 
+function mvtsBaisc_style_select() {
  
+   $options = get_option('mvtsBasic');
+	// commented out code for debug
+	// print_r($options);
+     
+    $html = '<select id="selectStyle" name="mvtsBasic[selectStyle]">';
+        $html .= '<option value="default">Select a style option...</option>';
+        $html .= '<option value="color"' . selected( $options['selectStyle'], 'color', false) . '>Color</option>';
+        $html .= '<option value="background-color"' . selected( $options['selectStyle'], 'background-color', false) . '>Background Color</option>';
+    $html .= '</select>';
+     
+    echo $html;
+ 
+} // end sandbox_radio_element_callback 
 
 function mvtsBasic_target_string() {
 	$options = get_option('mvtsBasic');
@@ -216,9 +230,14 @@ function mvtsBasic_testName_string() {
 
 
 function mvtsBasic_validate($input) {
+
+	// NOTE: THIS DOES NO VALIDATION!!!
+	// It takes the input sets it into a new variable and then returns it
+	// validation should take place on the new input before it is returned
 	$newinput['mvtsOnOff'] = $input['mvtsOnOff'];
 	$newinput['target'] = $input['target'];
 	$newinput['testName'] = $input['testName'];
+	$newinput['selectStyle'] = $input['selectStyle'];
 	/*if(!preg_match('/^[a-z0-9]{32}$/i', $newinput['basic_section1'])) {
 	$newinput['basic_section1'] = '';
 	}*/
