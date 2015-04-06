@@ -57,8 +57,22 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 				storageAdapter: {
 				nameSpace: 'mvts',
 				trackEvent: function(category, action, opt_label, opt_value, int_hit, cv_slot, scope) { 	
+					var len_ga = $('script[src*="analytics.js"]').length;
+						console.log( len_ga );
+					var len_gaq = $('script[src*="ga.js"]').length;
+						console.log( len_gaq );
+					if (len_gaq >= 1) {
+						// if using old analytics.js
+						_gaq.push(['_trackEvent', category, action, opt_label, opt_value, int_hit]);
+					} else if (len_ga >= 1) {
+						// if using new ga.js
+						// note: using 'ga' should work in most situations however Yoasts GA plugin when in Universal mode sets it to __gaTracker
+						__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);						
+						//ga('send', 'event', category, action, opt_label, opt_value, int_hit);	
+					} else {
+						console.log ('GA probably not defined or using a different identifier');
+					}
 					
-					ga('send', 'event', category, action, opt_label, opt_value, int_hit);
 					
 				},
 				onInitialize: function(inTest, testName, cohort, cv_slot, scope) {
