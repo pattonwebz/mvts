@@ -50,7 +50,7 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 					},
 					MVTS_variant_: {
 						onChosen: function() {
-							$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + " background-color: purple");
+							$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
 						}
 					},
 				},
@@ -177,6 +177,8 @@ if ( !function_exists('register_mvts_settings') ) {
 		add_settings_field('testName', 'A Name to identify the test', 'mvtsBasic_testName_string', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('target', 'Element to target', 'mvtsBasic_target_string', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('selectStyle', 'Style Element to Split Test', 'mvtsBaisc_style_select', 'mvtsBasic-group', 'mvtsBasic');
+		add_settings_field('styleAtt', 'Attribute to pass', 'mvtsBasic_style_att', 'mvtsBasic-group', 'mvtsBasic');
+		
 	}
 } // end !function_exists('register_mvts_settings')
 
@@ -197,7 +199,12 @@ function basic_section_text() {
 	echo '<p>Main description of this section here.</p>';
 }
 
-
+function mvtsBasic_style_att() {
+	$options = get_option('mvtsBasic');
+	// commented out code for debug
+	// print_r($options);
+	echo "<input id='styleAtt' name='mvtsBasic[styleAtt]' size='40' type='text' value='{$options['styleAtt']}' />";
+}
 function mvtsBaisc_style_select() {
  
    $options = get_option('mvtsBasic');
@@ -238,6 +245,7 @@ function mvtsBasic_validate($input) {
 	$newinput['target'] = $input['target'];
 	$newinput['testName'] = $input['testName'];
 	$newinput['selectStyle'] = $input['selectStyle'];
+	$newinput['styleAtt'] = $input['styleAtt'];
 	/*if(!preg_match('/^[a-z0-9]{32}$/i', $newinput['basic_section1'])) {
 	$newinput['basic_section1'] = '';
 	}*/
