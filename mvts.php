@@ -33,66 +33,69 @@ add_action( 'wp_footer', 'inline_mvtsTest_scripts' );
 if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
     function inline_mvtsTest_scripts() { 
     	$options = get_option('mvtsBasic');
-    	?>
-		<script type="text/javascript">
-		var $ = jQuery.noConflict();
-		$(document).ready(function() {
-			var <?php echo $options[testName]; ?> = new Cohorts.Test({
-				name: 'MVTS_',
-				scope: 1, // Sets the scope for the test and custom variable: 1: Visitor, 2: Session, 3: Page 
-				cv_slot: 5, // Sets the custom variable slot used in the GoogleAnalyticsAdapter
-				sample: 1,
-				cohorts: {
-					MVTS_default_: {
-						onChosen: function() {
-							// nothing is changed here but it's still tracked
+    	if (!$options['mvtsOnOff'] == '0') {
+	    	?>
+			<script type="text/javascript">
+			var $ = jQuery.noConflict();
+			$(document).ready(function() {
+				var <?php echo $options[testName]; ?> = new Cohorts.Test({
+					name: 'MVTS_',
+					scope: 1, // Sets the scope for the test and custom variable: 1: Visitor, 2: Session, 3: Page 
+					cv_slot: 5, // Sets the custom variable slot used in the GoogleAnalyticsAdapter
+					sample: 1,
+					cohorts: {
+						MVTS_default_: {
+							onChosen: function() {
+								// nothing is changed here but it's still tracked
+							}
+						},
+						MVTS_variant_: {
+							onChosen: function() {
+								$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
+							}
+						},
+					},
+					storageAdapter: {
+					nameSpace: 'mvts',
+					trackEvent: function(category, action, opt_label, opt_value, int_hit, cv_slot, scope) { 	
+						var len_ga = $('script[src*="analytics.js"]').length;
+							console.log( len_ga );
+						var len_gaq = $('script[src*="ga.js"]').length;
+							console.log( len_gaq );
+						<?php if ($options['mvtsTrack'] == '1'){ ?>
+							if (len_gaq >= 1) {
+								// if using old analytics.js
+								_gaq.push(['_trackEvent', category, action, opt_label, opt_value, int_hit]);
+							} else if (len_ga >= 1) {
+								// if using new ga.js
+								// note: using 'ga' should work in most situations however Yoasts GA plugin when in Universal mode sets it to __gaTracker
+								__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);						
+								//ga('send', 'event', category, action, opt_label, opt_value, int_hit);	
+							} else {
+								console.log ('GA probably not defined or using a different identifier');
+							}
+						<?php } ?>
+						
+					},
+					onInitialize: function(inTest, testName, cohort, cv_slot, scope) {
+						if(inTest && scope !== 3) {
+							this.trackEvent(this.nameSpace, testName, cohort, 0, true, cv_slot, scope);
 						}
 					},
-					MVTS_variant_: {
-						onChosen: function() {
-							$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
-						}
-					},
-				},
-				storageAdapter: {
-				nameSpace: 'mvts',
-				trackEvent: function(category, action, opt_label, opt_value, int_hit, cv_slot, scope) { 	
-					var len_ga = $('script[src*="analytics.js"]').length;
-						console.log( len_ga );
-					var len_gaq = $('script[src*="ga.js"]').length;
-						console.log( len_gaq );
-					if (len_gaq >= 1) {
-						// if using old analytics.js
-						_gaq.push(['_trackEvent', category, action, opt_label, opt_value, int_hit]);
-					} else if (len_ga >= 1) {
-						// if using new ga.js
-						// note: using 'ga' should work in most situations however Yoasts GA plugin when in Universal mode sets it to __gaTracker
-						__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);						
-						//ga('send', 'event', category, action, opt_label, opt_value, int_hit);	
-					} else {
-						console.log ('GA probably not defined or using a different identifier');
+					onEvent: function(testName, cohort, eventName) {
+						this.trackEvent(this.nameSpace, testName, cohort + ' | ' + eventName, 0, false);
 					}
-					
-					
-				},
-				onInitialize: function(inTest, testName, cohort, cv_slot, scope) {
-					if(inTest && scope !== 3) {
-						this.trackEvent(this.nameSpace, testName, cohort, 0, true, cv_slot, scope);
-					}
-				},
-				onEvent: function(testName, cohort, eventName) {
-					this.trackEvent(this.nameSpace, testName, cohort + ' | ' + eventName, 0, false);
 				}
-			}
-			});	
-			$('<?php echo $options[target]; ?>').click(function() {
-				<?php echo $options[testName]; ?>.event('Converted'); // Track any evens with your storage adapter
+				});	
+				$('<?php echo $options[target]; ?>').click(function() {
+					<?php echo $options[testName]; ?>.event('Converted'); // Track any evens with your storage adapter
+				});
+
 			});
+			</script>
 
-		});
-		</script>
-
-		<?php 
+			<?php 
+		}
 	}
 
 } // end !function_exists( 'inject_mvtsTest_scripts' )
@@ -174,6 +177,7 @@ if ( !function_exists('register_mvts_settings') ) {
 		register_setting( 'mvtsBasic-group', 'mvtsBasic', 'mvtsBasic_validate' );
 		add_settings_section('mvtsBasic', 'Basic Settings', 'basic_section_text', 'mvtsBasic-group');
 		add_settings_field('mvtsOnOff', 'Turn On or Off the tests', 'mvtsCheckboxOnOff','mvtsBasic-group', 'mvtsBasic');
+		add_settings_field('mvtsTrack', 'Track via Google Analytics', 'mvtsCheckboxTrack','mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('testName', 'A Name to identify the test', 'mvtsBasic_testName_string', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('target', 'Element to target', 'mvtsBasic_target_string', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('selectStyle', 'Style Element to Split Test', 'mvtsBaisc_style_select', 'mvtsBasic-group', 'mvtsBasic');
@@ -191,6 +195,19 @@ $options = get_option('mvtsBasic');
 } // end if */
 $html = '<input type="checkbox" id="mvtsOnOff" name="mvtsBasic[mvtsOnOff]" value="1"' . checked( 1, $options['mvtsOnOff'], false ) . '/>';
 $html .= '<label for="mvtsOnOff">Checked = On</label>';
+
+echo $html;
+}
+
+function mvtsCheckboxTrack () {
+$options = get_option('mvtsTrack');
+/*if( $options['mvtsOnOff'] == '1' ) { 
+    echo '<p>The checkbox has been checked.</p>';
+} else {
+    echo '<p>The checkbox has not been checked.</p>';
+} // end if */
+$html = '<input type="checkbox" id="mvtsTrack" name="mvtsBasic[mvtsTrack]" value="1"' . checked( 1, $options['mvtsTrack'], false ) . '/>';
+$html .= '<label for="mvtsTrack">Checked = On</label>';
 
 echo $html;
 }
@@ -242,6 +259,7 @@ function mvtsBasic_validate($input) {
 	// It takes the input sets it into a new variable and then returns it
 	// validation should take place on the new input before it is returned
 	$newinput['mvtsOnOff'] = $input['mvtsOnOff'];
+	$newinput['mvtsTrack'] = $input['mvtsTrack'];
 	$newinput['target'] = $input['target'];
 	$newinput['testName'] = $input['testName'];
 	$newinput['selectStyle'] = $input['selectStyle'];
