@@ -3,7 +3,7 @@
 Plugin Name: CTA Plugin
 Plugin URI: http://www.pattonwebz.com/resources/
 Description: Beginning of the cohorts MVT testing plugin.
-Version: 0.1
+Version: 0.2
 Author: William Patton
 Author URI: http://www.pattonwebz.com/
 License: GPL2
