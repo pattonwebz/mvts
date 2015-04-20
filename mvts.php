@@ -102,6 +102,10 @@ function mvtsBaisc_style_select() {
         $html .= '<option value="color"' . selected( $options['selectStyle'], 'color', false) . '>Color</option>';
         // 'background-color'
         $html .= '<option value="background-color"' . selected( $options['selectStyle'], 'background-color', false) . '>Background Color</option>';
+        // 'margin'
+        $html .= '<option value="margin"' . selected( $options['selectStyle'], 'margin', false) . '>Margin</option>';
+        // 'font-size'
+        $html .= '<option value="font-size"' . selected( $options['selectStyle'], 'font-size', false) . '>Font Size</option>';
     $html .= '</select>';
     // echo a select box
     echo $html;
