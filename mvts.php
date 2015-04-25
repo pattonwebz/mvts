@@ -82,6 +82,7 @@ function mvtsBasic_testName_string() {
 	// echo a text box
 	// this is an identifier for the test used in actions and
 	// labels pushed to the tracker
+	$options['testName']=esc_textarea($options['testName']);
 	echo "<input id='testName' name='mvtsBasic[testName]' size='40' type='text' value='{$options['testName']}' />";
 }
 
@@ -90,6 +91,7 @@ function mvtsBasic_target_string() {
 	$options = get_option('mvtsBasic');
 	// echo a text box
 	// expected input will be a CSS classname, an ID or a path to an element on page
+	$options['target']=esc_textarea($options['target']);
 	echo "<input id='target' name='mvtsBasic[target]' size='40' type='text' value='{$options['target']}' />";
 }
 
@@ -131,6 +133,7 @@ function mvtsBasic_style_att() {
 	// echo a text box
 	// expected values are the actual values that would be
 	// set for the selected CSS property in the select box
+	$options['styleAtt']=esc_textarea($options['styleAtt']);
 	echo "<input id='styleAtt' name='mvtsBasic[styleAtt]' class='hide'size='40' type='text' value='{$options['styleAtt']}' />";
 }
 function mvtsBasic_content() {
@@ -139,6 +142,7 @@ function mvtsBasic_content() {
 	// echo a text box
 	// expected values are the actual values that would be
 	// set for the selected CSS property in the select box
+	$options['contentChange']=esc_textarea($options['contentChange']);
 	echo "<input id='contentChange' name='mvtsBasic[contentChange]' class='hide' size='40' type='text' value='{$options['contentChange']}' />";
 }
 
@@ -157,12 +161,13 @@ function mvtsBasic_validate($input) {
 	// validate this with a for or a while loop of allowed values to compair against
 	$newinput['selectStyle'] = $input['selectStyle'];
 	$newinput['styleAtt'] = $input['styleAtt'];
-
+	// Change single quotes to double quotes
+	$input['contentChange'] = str_replace("'", '"', $input['contentChange']);
 	// Grab the list of allowed html tags for 'post' contenxt
 	$allowedTags_content = wp_kses_allowed_html( 'post' );
 	// Strip bad tags - allowing the same as what's allowed in posts
 	// Posts context is probably not restrictive enough!
-	$newinput['contentChange'] = wp_kese($input['contentChange'], $allowedTags_content);
+	$newinput['contentChange'] = wp_kses($input['contentChange'], $allowedTags_content);
 
 	// REMEMBER THIS IS STILL (some of it) NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
 	return $newinput;
