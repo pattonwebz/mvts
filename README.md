@@ -19,7 +19,7 @@ The plugin needs a few details filled in to work correctly.
 * The target selector of the element your testing - this is the CSS `class` or `id`.
 * The type of test to run - the plugin offers _style tests_ or _content tests_.
 
-_More advanced users are welcome to chain their target selector. One example might be: `#main_box .content.post > p`_
+_More advanced users are welcome to chain their target selector. For example: `#main_box .content.post > p`_
 
 #### Style Tests
 
@@ -27,7 +27,8 @@ Style tests are performed by making changes to the CSS styles of the element. Th
 
 Select your desired change and enter the value to change it to (the values are the same values you would specify via CSS).
 
-TODO: ADD ABILITY TO ADD OWN STYLE RULES. ADD ABILITY TO ADD/REMOVE CSS CLASSES>
+TODO: ADD ABILITY TO ADD OWN STYLE RULES. 
+TODO: ADD ABILITY TO ADD/REMOVE CSS CLASSES
 
 #### Content Tests
 
@@ -43,8 +44,8 @@ Version 0.2:
 * Improved validation on the data
 * Slightly improved interface
 * 2 bugfixes with unescaped (and escaped) html 
-** unescaped html would cause admin page to break layout if single quotes were entered
-** excaped html would cause the JavaScript test code to fail during content tests
+  * unescaped html would cause admin page to break layout if single quotes were entered
+  ** excaped html would cause the JavaScript test code to fail during content tests
 
 Version 0.1:
 
@@ -54,6 +55,7 @@ Version 0.1:
 Version 0.0.1
 
 * Plugin Creation
+
 ##### Credits & Thanks
 
 Without certain things this plugin wouldn't be possible. Here's a non-exclusive list of credits and thanks.
