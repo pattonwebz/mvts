@@ -2,8 +2,8 @@
 /*
 Plugin Name: CTA Plugin
 Plugin URI: http://www.pattonwebz.com/resources/
-Description: Beginning of the cohorts MVT testing plugin.
-Version: 0.1
+Description: A split-testing (MVT) plugin for WordPress. Functional but still in early development.
+Version: 0.2
 Author: William Patton
 Author URI: http://www.pattonwebz.com/
 License: GPL2
@@ -21,7 +21,8 @@ if ( !function_exists( 'load_mvts_scripts' ) ) {
     	$options = get_option('mvtsBasic');
         // not an admin page and plugin is turned on
         if ( !is_admin() && $options['mvtsOnOff'] == '1' ) { 
-			wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.js', array(), 1.0, true );
+			// wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.js', array(), 1.0, true );
+			wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.min.js', array(), 1.0, true );
             wp_enqueue_script( 'cohorts' );
             wp_enqueue_script( 'jquery' );
         }

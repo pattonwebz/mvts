@@ -35,6 +35,25 @@ A content test essentially changes EVERYTHING within the element that you are wa
 
 Simply enter what you want to change the content to.
 
+##### Version Log
+
+Version 0.2:
+
+* Added ability to run content based changes - change text in buttons, taglines or whole chunks of markup
+* Improved validation on the data
+* Slightly improved interface
+* 2 bugfixes with unescaped (and escaped) html 
+** unescaped html would cause admin page to break layout if single quotes were entered
+** excaped html would cause the JavaScript test code to fail during content tests
+
+Version 0.1:
+
+* First functional version
+* Ability to test
+
+Version 0.0.1
+
+* Plugin Creation
 ##### Credits & Thanks
 
 Without certain things this plugin wouldn't be possible. Here's a non-exclusive list of credits and thanks.
@@ -42,3 +61,5 @@ Without certain things this plugin wouldn't be possible. Here's a non-exclusive 
 1. WordPress
 2. jQuery
 3. Cohorts
+
+
