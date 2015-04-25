@@ -3,7 +3,7 @@
 Plugin Name: CTA Plugin
 Plugin URI: http://www.pattonwebz.com/resources/
 Description: Beginning of the cohorts MVT testing plugin.
-Version: 0.2
+Version: 0.1
 Author: William Patton
 Author URI: http://www.pattonwebz.com/
 License: GPL2
@@ -42,8 +42,10 @@ if ( !function_exists('register_mvts_settings') ) {
 		add_settings_field('mvtsTrack', 'Track via Google Analytics', 'mvtsCheckboxTrack','mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('testName', 'A Name to identify the test', 'mvtsBasic_testName_string', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('target', 'Element to target', 'mvtsBasic_target_string', 'mvtsBasic-group', 'mvtsBasic');
+		add_settings_field('selectType', 'Style Test Type', 'mvtsBaisc_type_select', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('selectStyle', 'Style Element to Split Test', 'mvtsBaisc_style_select', 'mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('styleAtt', 'Attribute to pass', 'mvtsBasic_style_att', 'mvtsBasic-group', 'mvtsBasic');
+		add_settings_field('contentChange', 'New content to use in test', 'mvtsBasic_content', 'mvtsBasic-group', 'mvtsBasic');
 	}
 } // end !function_exists('register_mvts_settings')
 
@@ -91,21 +93,33 @@ function mvtsBasic_target_string() {
 	echo "<input id='target' name='mvtsBasic[target]' size='40' type='text' value='{$options['target']}' />";
 }
 
+function mvtsBaisc_type_select() {
+	// grab the options array
+	$options = get_option('mvtsBasic');
+	// create $html variable with markup for the select box
+	// this dictates the type of test to perform
+    $html = '<select id="selectType" name="mvtsBasic[selectType]">';
+        $html .= '<option value="default">Select a test type...</option>';
+        // 'color'
+        $html .= '<option value="style"' . selected( $options['selectType'], 'style', false) . '>Style</option>';
+        // 'background-color'
+        $html .= '<option value="content"' . selected( $options['selectType'], 'content', false) . '>Content</option>';
+    $html .= '</select>';
+    // echo a select box
+    echo $html;
+}
+
 function mvtsBaisc_style_select() {
 	// grab the options array
 	$options = get_option('mvtsBasic');
 	// create $html variable with markup for the select box
 	// the valies are directly corilated with css properties
-    $html = '<select id="selectStyle" name="mvtsBasic[selectStyle]">';
+    $html = '<select id="selectStyle" name="mvtsBasic[selectStyle]" class="hide">';
         $html .= '<option value="default">Select a style option...</option>';
         // 'color'
         $html .= '<option value="color"' . selected( $options['selectStyle'], 'color', false) . '>Color</option>';
         // 'background-color'
         $html .= '<option value="background-color"' . selected( $options['selectStyle'], 'background-color', false) . '>Background Color</option>';
-        // 'margin'
-        $html .= '<option value="margin"' . selected( $options['selectStyle'], 'margin', false) . '>Margin</option>';
-        // 'font-size'
-        $html .= '<option value="font-size"' . selected( $options['selectStyle'], 'font-size', false) . '>Font Size</option>';
     $html .= '</select>';
     // echo a select box
     echo $html;
@@ -117,11 +131,20 @@ function mvtsBasic_style_att() {
 	// echo a text box
 	// expected values are the actual values that would be
 	// set for the selected CSS property in the select box
-	echo "<input id='styleAtt' name='mvtsBasic[styleAtt]' size='40' type='text' value='{$options['styleAtt']}' />";
+	echo "<input id='styleAtt' name='mvtsBasic[styleAtt]' class='hide'size='40' type='text' value='{$options['styleAtt']}' />";
+}
+function mvtsBasic_content() {
+	// grab the options array
+	$options = get_option('mvtsBasic');
+	// echo a text box
+	// expected values are the actual values that would be
+	// set for the selected CSS property in the select box
+	echo "<input id='contentChange' name='mvtsBasic[contentChange]' class='hide' size='40' type='text' value='{$options['contentChange']}' />";
 }
 
 function mvtsBasic_validate($input) {
 	// NOTE: THIS DOES NO INPUT VALIDATION!!! BE CAREFUL!
+	// UPDATE: SOME VALIDATION DONE
 	// Takes the input, sets it to a new variable and then returns it.
 	// Validation should take place on the new input before it is returned
 	// so that the unsanitized input never touches the database.
@@ -129,10 +152,19 @@ function mvtsBasic_validate($input) {
 	$newinput['mvtsTrack'] = $input['mvtsTrack'];
 	$newinput['target'] = $input['target'];
 	$newinput['testName'] = $input['testName'];
+	// validate this with a for or a while loop of allowed values to compair against
+	$newinput['selectType'] = $input['selectType'];
+	// validate this with a for or a while loop of allowed values to compair against
 	$newinput['selectStyle'] = $input['selectStyle'];
 	$newinput['styleAtt'] = $input['styleAtt'];
 
-	// REMEMBER THIS IS STILL NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
+	// Grab the list of allowed html tags for 'post' contenxt
+	$allowedTags_content = wp_kses_allowed_html( 'post' );
+	// Strip bad tags - allowing the same as what's allowed in posts
+	// Posts context is probably not restrictive enough!
+	$newinput['contentChange'] = wp_kese($input['contentChange'], $allowedTags_content);
+
+	// REMEMBER THIS IS STILL (some of it) NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
 	return $newinput;
 }
 
@@ -191,8 +223,15 @@ if ( !function_exists( 'mvts_menu_page' ) ) {
 			.tab-content .tab-panel.active {
 				display:block;
 			}
+			.hid {
+				display: none;
+			}
+			.hid.show{
+				display:inherit;
+			}
 		</style>
 		<!-- This script adds or removes classes on the tabs based on click/active state -->
+		<!-- Also does a show/hide based on value of a select box -->
 		<script type="text/javascript">
 			jQuery( ".nav-tab-wrapper .nav-tab" ).click(function( event ) {
 				event.preventDefault();
@@ -201,6 +240,14 @@ if ( !function_exists( 'mvts_menu_page' ) ) {
 	  			jQuery(target).addClass('active');
 	  			console.log(target);
 			});
+			jQuery(".hide").parent().parent().addClass("hid");
+			var showHideVal = jQuery( "#selectType" ).val();
+			if (showHideVal == "style") {
+				jQuery("#selectStyle").parent().parent().removeClass("hid");
+				jQuery("#styleAtt").parent().parent().removeClass("hid");
+			} else if (showHideVal == "content") {
+				jQuery("#contentChange").parent().parent().removeClass("hid");
+			}	
 		</script>
 	<?php }
 } // end !function_exists( 'mvts_menu_page' )
@@ -230,7 +277,12 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 						},
 						MVTS_variant_: {
 							onChosen: function() {
-								$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
+								<?php if($options['selectType'] == 'style'){ ?> 
+									$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
+								<?php } ?>
+								<?php if($options['selectType'] == 'content'){ ?> 
+									$('<?php echo $options[target]; ?>').html( '<?php echo $options[contentChange]; ?>');
+								<?php } ?>
 							}
 						},
 					},
@@ -249,6 +301,7 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 								// if using new ga.js
 								// note: using 'ga' should work in most situations however Yoasts GA
 								// plugin in Universal mode sets it to __gaTracker to prevent conflits
+								// find a way to detect the custom object and set this dynamically
 								__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);						
 								//ga('send', 'event', category, action, opt_label, opt_value, int_hit);	
 							} else {
