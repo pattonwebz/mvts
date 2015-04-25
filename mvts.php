@@ -122,6 +122,10 @@ function mvtsBaisc_style_select() {
         $html .= '<option value="color"' . selected( $options['selectStyle'], 'color', false) . '>Color</option>';
         // 'background-color'
         $html .= '<option value="background-color"' . selected( $options['selectStyle'], 'background-color', false) . '>Background Color</option>';
+	    // 'margin'
+        $html .= '<option value="margin"' . selected( $options['selectStyle'], 'margin', false) . '>Margin</option>';
+    	// 'font-size'
+		$html .= '<option value="font-size"' . selected( $options['selectStyle'], 'font-size', false) . '>Font Size</option>';
     $html .= '</select>';
     // echo a select box
     echo $html;
@@ -133,10 +137,7 @@ function mvtsBasic_style_att() {
 	// echo a text box
 	// expected values are the actual values that would be
 	// set for the selected CSS property in the select box
-<<<<<<< HEAD
 	$options['styleAtt']=esc_textarea($options['styleAtt']);
-=======
->>>>>>> 2ae64a79a8f8c25bba76f497e6ce46d36b8f0c45
 	echo "<input id='styleAtt' name='mvtsBasic[styleAtt]' class='hide'size='40' type='text' value='{$options['styleAtt']}' />";
 }
 function mvtsBasic_content() {
@@ -145,10 +146,7 @@ function mvtsBasic_content() {
 	// echo a text box
 	// expected values are the actual values that would be
 	// set for the selected CSS property in the select box
-<<<<<<< HEAD
 	$options['contentChange']=esc_textarea($options['contentChange']);
-=======
->>>>>>> 2ae64a79a8f8c25bba76f497e6ce46d36b8f0c45
 	echo "<input id='contentChange' name='mvtsBasic[contentChange]' class='hide' size='40' type='text' value='{$options['contentChange']}' />";
 }
 
@@ -158,32 +156,47 @@ function mvtsBasic_validate($input) {
 	// Takes the input, sets it to a new variable and then returns it.
 	// Validation should take place on the new input before it is returned
 	// so that the unsanitized input never touches the database.
+	
 	$newinput['mvtsOnOff'] = $input['mvtsOnOff'];
 	$newinput['mvtsTrack'] = $input['mvtsTrack'];
 	$newinput['target'] = $input['target'];
 	$newinput['testName'] = $input['testName'];
-	// validate this with a for or a while loop of allowed values to compair against
-	$newinput['selectType'] = $input['selectType'];
-	// validate this with a for or a while loop of allowed values to compair against
-	$newinput['selectStyle'] = $input['selectStyle'];
+
+	// set allowed values to an array
+	$allowed_testType = array('style', 'content')
+	// loop through allowed values array
+	foreach ($allowed_testType as $testType) {
+		// compair the input against allowed values
+		if ($input['selectType'] === $testType) {
+			// if it's an allowed value then save place it in the variable that gets returned
+			$newinput['selectType'] = $input['selectType'];
+		}	
+		// if the input isn't an allowed value then we should not save it
+	}
+
+	// set allowed values to an array
+	$allowed_styleType = array('color', 'background-color', 'margin', 'font-size')
+	// loop through allowed values array
+	foreach ($allowed_styleType as $styleType) {
+		// compair the input against allowed values
+		if ($input['selectStyle'] === $styleType) {
+			// if it's an allowed value then save place it in the variable that gets returned
+			$newinput['selectStyle'] = $input['selectStyle'];
+		}	
+		// if the input isn't an allowed value then we should not save it
+	}
+
 	$newinput['styleAtt'] = $input['styleAtt'];
+
 	// Change single quotes to double quotes
+	// SHOULD THIS MAYBE JUST ESCAPE THEM??? IE: str_replace("'", "\\\'", $input);
 	$input['contentChange'] = str_replace("'", '"', $input['contentChange']);
-	// Grab the list of allowed html tags for 'post' contenxt
+	// Grab the list of allowed html tags for 'post' context
 	$allowedTags_content = wp_kses_allowed_html( 'post' );
 	// Strip bad tags - allowing the same as what's allowed in posts
 	// Posts context is probably not restrictive enough!
 	$newinput['contentChange'] = wp_kses($input['contentChange'], $allowedTags_content);
 
-<<<<<<< HEAD
-=======
-	// Grab the list of allowed html tags for 'post' contenxt
-	$allowedTags_content = wp_kses_allowed_html( 'post' );
-	// Strip bad tags - allowing the same as what's allowed in posts
-	// Posts context is probably not restrictive enough!
-	$newinput['contentChange'] = wp_kese($input['contentChange'], $allowedTags_content);
-
->>>>>>> 2ae64a79a8f8c25bba76f497e6ce46d36b8f0c45
 	// REMEMBER THIS IS STILL (some of it) NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
 	return $newinput;
 }
