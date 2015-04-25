@@ -133,7 +133,10 @@ function mvtsBasic_style_att() {
 	// echo a text box
 	// expected values are the actual values that would be
 	// set for the selected CSS property in the select box
+<<<<<<< HEAD
 	$options['styleAtt']=esc_textarea($options['styleAtt']);
+=======
+>>>>>>> 2ae64a79a8f8c25bba76f497e6ce46d36b8f0c45
 	echo "<input id='styleAtt' name='mvtsBasic[styleAtt]' class='hide'size='40' type='text' value='{$options['styleAtt']}' />";
 }
 function mvtsBasic_content() {
@@ -142,7 +145,10 @@ function mvtsBasic_content() {
 	// echo a text box
 	// expected values are the actual values that would be
 	// set for the selected CSS property in the select box
+<<<<<<< HEAD
 	$options['contentChange']=esc_textarea($options['contentChange']);
+=======
+>>>>>>> 2ae64a79a8f8c25bba76f497e6ce46d36b8f0c45
 	echo "<input id='contentChange' name='mvtsBasic[contentChange]' class='hide' size='40' type='text' value='{$options['contentChange']}' />";
 }
 
@@ -169,6 +175,15 @@ function mvtsBasic_validate($input) {
 	// Posts context is probably not restrictive enough!
 	$newinput['contentChange'] = wp_kses($input['contentChange'], $allowedTags_content);
 
+<<<<<<< HEAD
+=======
+	// Grab the list of allowed html tags for 'post' contenxt
+	$allowedTags_content = wp_kses_allowed_html( 'post' );
+	// Strip bad tags - allowing the same as what's allowed in posts
+	// Posts context is probably not restrictive enough!
+	$newinput['contentChange'] = wp_kese($input['contentChange'], $allowedTags_content);
+
+>>>>>>> 2ae64a79a8f8c25bba76f497e6ce46d36b8f0c45
 	// REMEMBER THIS IS STILL (some of it) NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
 	return $newinput;
 }
