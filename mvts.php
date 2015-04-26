@@ -164,7 +164,7 @@ function mvtsBasic_validate($input) {
 	$newinput['testName'] = $input['testName'];
 
 	// set allowed values to an array
-	$allowed_testType = array('style', 'content')
+	$allowed_testType = array('style', 'content');
 	// loop through allowed values array
 	foreach ($allowed_testType as $testType) {
 		// compair the input against allowed values
@@ -176,7 +176,7 @@ function mvtsBasic_validate($input) {
 	}
 
 	// set allowed values to an array
-	$allowed_styleType = array('color', 'background-color', 'margin', 'font-size')
+	$allowed_styleType = array('color', 'background-color', 'margin', 'font-size');
 	// loop through allowed values array
 	foreach ($allowed_styleType as $styleType) {
 		// compair the input against allowed values
