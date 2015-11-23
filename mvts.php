@@ -24,9 +24,6 @@ if ( !function_exists( 'load_mvts_scripts' ) ) {
 			// wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.js', array(), 1.0, true );
 			wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.min.js', array(), 1.0, true );
             wp_register_script( 'mvtsTestScript', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/testscript.js', array('cohorts','jquery'), 1.0, true );
-            wp_enqueue_script( 'cohorts' );
-            wp_enqueue_script( 'mvtsTestScript' );
-            wp_enqueue_script( 'jquery' );
         }
     }
 }
@@ -39,7 +36,7 @@ if ( !function_exists('register_mvts_settings') ) {
 		// register a settings group
 		register_setting( 'mvtsBasic-group', 'mvtsBasic', 'mvtsBasic_validate' );
 		// add a section to the settings group
-		add_settings_section('mvtsBasic', 'Basic Settings', 'basic_section_text', 'mvtsBasic-group');
+		add_settings_section('mvtsBasic', 'MVTS Settings', 'basic_section_text', 'mvtsBasic-group');
 		// add several fields to the section in the settings group
 		add_settings_field('mvtsOnOff', 'Turn On or Off the tests', 'mvtsCheckboxOnOff','mvtsBasic-group', 'mvtsBasic');
 		add_settings_field('mvtsTrack', 'Track via Google Analytics', 'mvtsCheckboxTrack','mvtsBasic-group', 'mvtsBasic');
@@ -54,7 +51,7 @@ if ( !function_exists('register_mvts_settings') ) {
 
 function basic_section_text() {
 	// This is the opening message for the settings section.
-	echo '<p>This is an informational section on the page.</p>';
+	echo '<p>The main settings for the MVTS plugin are below.</p>';
 }
 
 // Main On/Off toggle for plugin functions
@@ -298,7 +295,8 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
         /********************************* */
 
         if ($options['mvtsOnOff'] == '1') {
-
+            wp_enqueue_script( 'cohorts' );
+            wp_enqueue_script( 'mvtsTestScript' );
             wp_localize_script( 'mvtsTestScript', 'testVariables', array(
                 'testTrack'     => $options[mvtsTrack],
                 'testName'  => $options[testName],
@@ -309,77 +307,6 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 
         /********************************* */
 
-        // if the plugin is 'ON' then output the script
-    	if ($options['mvtsOnOff'] == '1') {
-	    	?>
-			<script type="text/javascript">
-			var $ = jQuery.noConflict();
-			$(document).ready(function() {
-				var <?php echo $options[testName]; ?> = new Cohorts.Test({
-					name: 'MVTS_',
-					scope: 1, // Sets the scope for the test and custom variable: 1: Visitor, 2: Session, 3: Page
-					cv_slot: 5, // Sets the custom variable slot used in the GoogleAnalyticsAdapter
-					sample: 1,
-					cohorts: {
-						MVTS_default_: {
-							onChosen: function() {
-								// Nothing is changed here but it's still tracked
-							}
-						},
-						MVTS_variant_: {
-							onChosen: function() {
-								<?php if($options['selectType'] == 'style'){ ?>
-									$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
-								<?php } ?>
-								<?php if($options['selectType'] == 'content'){ ?>
-									$('<?php echo $options[target]; ?>').html( '<?php echo $options[contentChange]; ?>');
-								<?php } ?>
-							}
-						},
-					},
-					storageAdapter: {
-					nameSpace: 'mvts',
-					trackEvent: function(category, action, opt_label, opt_value, int_hit, cv_slot, scope) {
-						var len_ga = $('script[src*="analytics.js"]').length;
-						var len_gaq = $('script[src*="ga.js"]').length;
-						<?php // NOTE: This is a PHP if statement
-							// if Tracking is 'On' then inline the push to GA
-							if ($options['mvtsTrack'] == '1'){ ?>
-							if (len_gaq >= 1) {
-								// if using old analytics.js
-								_gaq.push(['_trackEvent', category, action, opt_label, opt_value, int_hit]);
-							} else if (len_ga >= 1) {
-								// if using new ga.js
-								// note: using 'ga' should work in most situations however Yoasts GA
-								// plugin in Universal mode sets it to __gaTracker to prevent conflits
-								// find a way to detect the custom object and set this dynamically
-								__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);
-								//ga('send', 'event', category, action, opt_label, opt_value, int_hit);
-							} else {
-								console.log ('GA probably not defined or using a different identifier');
-							}
-						<?php } ?>
-
-					},
-					onInitialize: function(inTest, testName, cohort, cv_slot, scope) {
-						if(inTest && scope !== 3) {
-							this.trackEvent(this.nameSpace, testName, cohort, 0, true, cv_slot, scope);
-						}
-					},
-					onEvent: function(testName, cohort, eventName) {
-						this.trackEvent(this.nameSpace, testName, cohort + ' | ' + eventName, 0, false);
-					}
-				}
-				});
-				$('<?php echo $options[target]; ?>').click(function() {
-					<?php echo $options[testName]; ?>.event('Converted'); // Track any events with your storage adapter
-				});
-
-			});
-			</script>
-
-			<?php
-		}
 	}
 
 } // end !function_exists( 'inline_mvtsTest_scripts' )
