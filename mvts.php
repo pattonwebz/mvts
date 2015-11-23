@@ -20,10 +20,12 @@ if ( !function_exists( 'load_mvts_scripts' ) ) {
     function load_mvts_scripts() {
     	$options = get_option('mvtsBasic');
         // not an admin page and plugin is turned on
-        if ( !is_admin() && $options['mvtsOnOff'] == '1' ) { 
+        if ( !is_admin() && $options['mvtsOnOff'] == '1' ) {
 			// wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.js', array(), 1.0, true );
 			wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.min.js', array(), 1.0, true );
+            wp_register_script( 'mvtsTestScript', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/testscript.js', array('cohorts','jquery'), 1.0, true );
             wp_enqueue_script( 'cohorts' );
+            wp_enqueue_script( 'mvtsTestScript' );
             wp_enqueue_script( 'jquery' );
         }
     }
@@ -31,7 +33,7 @@ if ( !function_exists( 'load_mvts_scripts' ) ) {
 
 // Create settings used by the admin page
 add_action( 'admin_init', 'register_mvts_settings' );
-	
+
 if ( !function_exists('register_mvts_settings') ) {
 	function register_mvts_settings() {
 		// register a settings group
@@ -157,7 +159,7 @@ function mvtsBasic_validate($input) {
 	// Takes the input, sets it to a new variable and then returns it.
 	// Validation should take place on the new input before it is returned
 	// so that the unsanitized input never touches the database.
-	
+
 	$newinput['mvtsOnOff'] = $input['mvtsOnOff'];
 	$newinput['mvtsTrack'] = $input['mvtsTrack'];
 	$newinput['target'] = $input['target'];
@@ -171,7 +173,7 @@ function mvtsBasic_validate($input) {
 		if ($input['selectType'] === $testType) {
 			// if it's an allowed value then save place it in the variable that gets returned
 			$newinput['selectType'] = $input['selectType'];
-		}	
+		}
 		// if the input isn't an allowed value then we should not save it
 	}
 
@@ -183,7 +185,7 @@ function mvtsBasic_validate($input) {
 		if ($input['selectStyle'] === $styleType) {
 			// if it's an allowed value then save place it in the variable that gets returned
 			$newinput['selectStyle'] = $input['selectStyle'];
-		}	
+		}
 		// if the input isn't an allowed value then we should not save it
 	}
 
@@ -223,22 +225,22 @@ if ( !function_exists( 'mvts_menu_page' ) ) {
 			</div>
 			<div class="tab-content">
 				<div id="basic-settings" class="tab-panel active">
-					<form method="post" action="options.php"> 
-						<?php 
+					<form method="post" action="options.php">
+						<?php
 						// outputs the mvtsBasic-group of settings.
 						settings_fields( 'mvtsBasic-group' );
 						do_settings_sections( 'mvtsBasic-group' );
-						submit_button(); 
+						submit_button();
 						?>
 					</form>
 				</div>
 				<div id="advanced-settings" class="tab-panel">
 					<p>NOTE: For future use.</p>
-					<form method="post" action="options.php"> 
-						<?php 
+					<form method="post" action="options.php">
+						<?php
 						settings_fields( 'mvtsAdvanced-group' );
 						do_settings_sections( 'mvtsAdvanced-group' );
-						//submit_button(); 
+						//submit_button();
 						?>
 					</form>
 				</div>
@@ -281,7 +283,7 @@ if ( !function_exists( 'mvts_menu_page' ) ) {
 				jQuery("#styleAtt").parent().parent().removeClass("hid");
 			} else if (showHideVal == "content") {
 				jQuery("#contentChange").parent().parent().removeClass("hid");
-			}	
+			}
 		</script>
 	<?php }
 } // end !function_exists( 'mvts_menu_page' )
@@ -290,9 +292,24 @@ if ( !function_exists( 'mvts_menu_page' ) ) {
 add_action( 'wp_footer', 'inline_mvtsTest_scripts' );
 
 if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
-    function inline_mvtsTest_scripts() { 
+    function inline_mvtsTest_scripts() {
     	$options = get_option('mvtsBasic');
-    	// if the plugin is 'ON' then output the script
+
+        /********************************* */
+
+        if ($options['mvtsOnOff'] == '1') {
+
+            wp_localize_script( 'mvtsTestScript', 'testVariables', array(
+                'testTrack'     => $options[mvtsTrack],
+                'testName'  => $options[testName],
+                'testType'  => $options[selectType],
+                'testTarget'    => $options[target] )
+            );
+        }
+
+        /********************************* */
+
+        // if the plugin is 'ON' then output the script
     	if ($options['mvtsOnOff'] == '1') {
 	    	?>
 			<script type="text/javascript">
@@ -300,7 +317,7 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 			$(document).ready(function() {
 				var <?php echo $options[testName]; ?> = new Cohorts.Test({
 					name: 'MVTS_',
-					scope: 1, // Sets the scope for the test and custom variable: 1: Visitor, 2: Session, 3: Page 
+					scope: 1, // Sets the scope for the test and custom variable: 1: Visitor, 2: Session, 3: Page
 					cv_slot: 5, // Sets the custom variable slot used in the GoogleAnalyticsAdapter
 					sample: 1,
 					cohorts: {
@@ -311,10 +328,10 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 						},
 						MVTS_variant_: {
 							onChosen: function() {
-								<?php if($options['selectType'] == 'style'){ ?> 
+								<?php if($options['selectType'] == 'style'){ ?>
 									$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
 								<?php } ?>
-								<?php if($options['selectType'] == 'content'){ ?> 
+								<?php if($options['selectType'] == 'content'){ ?>
 									$('<?php echo $options[target]; ?>').html( '<?php echo $options[contentChange]; ?>');
 								<?php } ?>
 							}
@@ -322,11 +339,11 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 					},
 					storageAdapter: {
 					nameSpace: 'mvts',
-					trackEvent: function(category, action, opt_label, opt_value, int_hit, cv_slot, scope) { 	
+					trackEvent: function(category, action, opt_label, opt_value, int_hit, cv_slot, scope) {
 						var len_ga = $('script[src*="analytics.js"]').length;
 						var len_gaq = $('script[src*="ga.js"]').length;
 						<?php // NOTE: This is a PHP if statement
-							// if Tracking is 'On' then inline the push to GA 
+							// if Tracking is 'On' then inline the push to GA
 							if ($options['mvtsTrack'] == '1'){ ?>
 							if (len_gaq >= 1) {
 								// if using old analytics.js
@@ -336,13 +353,13 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 								// note: using 'ga' should work in most situations however Yoasts GA
 								// plugin in Universal mode sets it to __gaTracker to prevent conflits
 								// find a way to detect the custom object and set this dynamically
-								__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);						
-								//ga('send', 'event', category, action, opt_label, opt_value, int_hit);	
+								__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);
+								//ga('send', 'event', category, action, opt_label, opt_value, int_hit);
 							} else {
 								console.log ('GA probably not defined or using a different identifier');
 							}
 						<?php } ?>
-						
+
 					},
 					onInitialize: function(inTest, testName, cohort, cv_slot, scope) {
 						if(inTest && scope !== 3) {
@@ -353,7 +370,7 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 						this.trackEvent(this.nameSpace, testName, cohort + ' | ' + eventName, 0, false);
 					}
 				}
-				});	
+				});
 				$('<?php echo $options[target]; ?>').click(function() {
 					<?php echo $options[testName]; ?>.event('Converted'); // Track any events with your storage adapter
 				});
@@ -361,7 +378,7 @@ if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
 			});
 			</script>
 
-			<?php 
+			<?php
 		}
 	}
 
