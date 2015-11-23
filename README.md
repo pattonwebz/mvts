@@ -1,3 +1,5 @@
+NOTE: Major rework coming between version 0.2 and 0.3 to follow better standards
+
 # WordPress Split Testing Plugin - MVTS
 
 This plugin provides an interface to easily configure split tests on your WordPress site. 
