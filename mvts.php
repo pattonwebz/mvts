@@ -242,21 +242,26 @@ function mvts_menu_page(){
 	<!-- This script adds or removes classes on the tabs based on click/active state -->
 	<!-- Also does a show/hide based on value of a select box -->
 	<script type="text/javascript">
-		jQuery( ".nav-tab-wrapper .nav-tab" ).click(function( event ) {
-			event.preventDefault();
-  			var target = jQuery(this).attr("data-target");
-  			jQuery( ".tab-content .active" ).removeClass('active');
-  			jQuery(target).addClass('active');
-  			console.log(target);
-		});
-		jQuery(".hide").parent().parent().addClass("hid");
-		var showHideVal = jQuery( "#selectType" ).val();
-		if (showHideVal == "style") {
-			jQuery("#selectStyle").parent().parent().removeClass("hid");
-			jQuery("#styleAtt").parent().parent().removeClass("hid");
-		} else if (showHideVal == "content") {
-			jQuery("#contentChange").parent().parent().removeClass("hid");
-		}
+        // run this check every 5 seconds
+        setInterval(timerChecking, 5000)
+    	// This function checks if a box should he hidden or not and makes it happen
+        function timerChecking() {
+        	jQuery( ".nav-tab-wrapper .nav-tab" ).click(function( event ) {
+    			event.preventDefault();
+      			var target = jQuery(this).attr("data-target");
+      			jQuery( ".tab-content .active" ).removeClass('active');
+      			jQuery(target).addClass('active');
+      			console.log(target);
+    		});
+    		jQuery(".hide").parent().parent().addClass("hid");
+    		var showHideVal = jQuery( "#selectType" ).val();
+    		if (showHideVal == "style") {
+    			jQuery("#selectStyle").parent().parent().removeClass("hid");
+    			jQuery("#styleAtt").parent().parent().removeClass("hid");
+    		} else if (showHideVal == "content") {
+    			jQuery("#contentChange").parent().parent().removeClass("hid");
+    		}
+        }
 	</script>
 <?php } // end !function mvts_menu_page
 
