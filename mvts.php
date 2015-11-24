@@ -1,13 +1,17 @@
 <?php
 /*
-Plugin Name: CTA Plugin
+Plugin Name: Optiwebz MVTS
 Plugin URI: http://www.pattonwebz.com/resources/
-Description: A split-testing (MVT) plugin for WordPress. Functional but still in early development.
+Description: A powerful split-testing (MVT) plugin for WordPress. Functional but still in early development.
 Version: 0.2
 Author: William Patton
 Author URI: http://www.pattonwebz.com/
 License: GPL2
 */
+
+
+// The heart of the plugin is the javascript testing library and companion
+// testing script. These are enqueued by this function.
 
 /* =============================================================
  * Enqueue Javascript
@@ -28,34 +32,49 @@ if ( !function_exists( 'load_mvts_scripts' ) ) {
     }
 }
 
-// Create settings used by the admin page
+// The plugin needs an admin page where people can specify settings. The below
+// adds the page and then the settings that are used are defined
+
+// create an admin page for settings
+add_action( 'admin_menu', 'register_mvts_menu_page' );
+
+if ( !function_exists( 'register_mvts_menu_page' ) ) {
+	function register_mvts_menu_page(){
+		add_menu_page( 'MVTS', 'MVTS', 'manage_options', 'mvts', 'mvts_menu_page', 'dashicons-welcome-widgets-menus', 6 );
+	}
+}
+
 add_action( 'admin_init', 'register_mvts_settings' );
 
-if ( !function_exists('register_mvts_settings') ) {
-	function register_mvts_settings() {
-		// register a settings group
-		register_setting( 'mvtsBasic-group', 'mvtsBasic', 'mvtsBasic_validate' );
-		// add a section to the settings group
-		add_settings_section('mvtsBasic', 'MVTS Settings', 'basic_section_text', 'mvtsBasic-group');
-		// add several fields to the section in the settings group
-		add_settings_field('mvtsOnOff', 'Turn On or Off the tests', 'mvtsCheckboxOnOff','mvtsBasic-group', 'mvtsBasic');
-		add_settings_field('mvtsTrack', 'Track via Google Analytics', 'mvtsCheckboxTrack','mvtsBasic-group', 'mvtsBasic');
-		add_settings_field('testName', 'A Name to identify the test', 'mvtsBasic_testName_string', 'mvtsBasic-group', 'mvtsBasic');
-		add_settings_field('target', 'Element to target', 'mvtsBasic_target_string', 'mvtsBasic-group', 'mvtsBasic');
-		add_settings_field('selectType', 'Style Test Type', 'mvtsBaisc_type_select', 'mvtsBasic-group', 'mvtsBasic');
-		add_settings_field('selectStyle', 'Style Element to Split Test', 'mvtsBaisc_style_select', 'mvtsBasic-group', 'mvtsBasic');
-		add_settings_field('styleAtt', 'Attribute to pass', 'mvtsBasic_style_att', 'mvtsBasic-group', 'mvtsBasic');
-		add_settings_field('contentChange', 'New content to use in test', 'mvtsBasic_content', 'mvtsBasic-group', 'mvtsBasic');
-	}
-} // end !function_exists('register_mvts_settings')
+function register_mvts_settings() {
 
+	// register a settings group
+	register_setting( 'mvtsBasic-group', 'mvtsBasic', 'mvtsBasic_validate' );
+
+    // add a section to the settings group
+	add_settings_section('mvtsBasic', 'MVTS Settings', 'basic_section_text', 'mvtsBasic-group');
+
+    // add several fields to the section in the settings group
+	add_settings_field('mvtsOnOff', 'Turn On or Off the tests', 'mvtsCheckboxOnOff','mvtsBasic-group', 'mvtsBasic');
+	add_settings_field('mvtsTrack', 'Track via Google Analytics', 'mvtsCheckboxTrack','mvtsBasic-group', 'mvtsBasic');
+	add_settings_field('testName', 'A Name to identify the test', 'mvtsBasic_testName_string', 'mvtsBasic-group', 'mvtsBasic');
+	add_settings_field('target', 'Element to target', 'mvtsBasic_target_string', 'mvtsBasic-group', 'mvtsBasic');
+	add_settings_field('selectType', 'Style Test Type', 'mvtsBaisc_type_select', 'mvtsBasic-group', 'mvtsBasic');
+	add_settings_field('selectStyle', 'Style Element to Split Test', 'mvtsBaisc_style_select', 'mvtsBasic-group', 'mvtsBasic');
+	add_settings_field('styleAtt', 'Attribute to pass', 'mvtsBasic_style_att', 'mvtsBasic-group', 'mvtsBasic');
+	add_settings_field('contentChange', 'New content to use in test', 'mvtsBasic_content', 'mvtsBasic-group', 'mvtsBasic');
+
+} // end function register_mvts_settings
+
+// The 'Basic' section of settings has some opening text.
 function basic_section_text() {
 	// This is the opening message for the settings section.
 	echo '<p>The main settings for the MVTS plugin are below.</p>';
-}
+} // end basic_section_text
 
 // Main On/Off toggle for plugin functions
-function mvtsCheckboxOnOff () {
+// Type: Checkbox
+function mvtsCheckboxOnOff() {
 	// grab the options array
 	$options = get_option('mvtsBasic');
 	// create $html variable with markup for the checkbox
@@ -63,9 +82,10 @@ function mvtsCheckboxOnOff () {
 	$html .= '<label for="mvtsOnOff">Checked = On</label>';
 	// echo a checkbox
 	echo $html;
-}
+} // end function mvtsCheckboxOnOff
 
 // Enable or disable the GA event pushing tracking feature
+// Type: Checkbox
 function mvtsCheckboxTrack () {
 	// grab the options array
 	$options = get_option('mvtsBasic');
@@ -74,8 +94,10 @@ function mvtsCheckboxTrack () {
 	$html .= '<label for="mvtsTrack">Checked = On</label>';
 	// echo a checkbox
 	echo $html;
-}
+} // end function mvtsCheckboxTrack
 
+// This is the generic test name
+// Type: Text
 function mvtsBasic_testName_string() {
 	// grab the options array
 	$options = get_option('mvtsBasic');
@@ -86,6 +108,8 @@ function mvtsBasic_testName_string() {
 	echo "<input id='testName' name='mvtsBasic[testName]' size='40' type='text' value='{$options['testName']}' />";
 }
 
+// Should accept the ID or Classname of the element being targeted
+// Type: Text
 function mvtsBasic_target_string() {
 	// grab the options array
 	$options = get_option('mvtsBasic');
@@ -95,6 +119,8 @@ function mvtsBasic_target_string() {
 	echo "<input id='target' name='mvtsBasic[target]' size='40' type='text' value='{$options['target']}' />";
 }
 
+// A selectio of the available test types
+// Type: Selectbox
 function mvtsBaisc_type_select() {
 	// grab the options array
 	$options = get_option('mvtsBasic');
@@ -111,6 +137,8 @@ function mvtsBaisc_type_select() {
     echo $html;
 }
 
+// Choices for the various style edits available for 'style' test types
+// Type: Selectbox
 function mvtsBaisc_style_select() {
 	// grab the options array
 	$options = get_option('mvtsBasic');
@@ -131,6 +159,8 @@ function mvtsBaisc_style_select() {
     echo $html;
 }
 
+// Box that expects exact CSS for a style edit on a target element
+// Type: Text
 function mvtsBasic_style_att() {
 	// grab the options array
 	$options = get_option('mvtsBasic');
@@ -140,6 +170,10 @@ function mvtsBasic_style_att() {
 	$options['styleAtt']=esc_textarea($options['styleAtt']);
 	echo "<input id='styleAtt' name='mvtsBasic[styleAtt]' class='hide'size='40' type='text' value='{$options['styleAtt']}' />";
 }
+
+// If a 'content' test is chosen this is the input for that to be specified
+// Type: Text
+// NOTE: Should probably be a textbox instaed of a simple text field
 function mvtsBasic_content() {
 	// grab the options array
 	$options = get_option('mvtsBasic');
@@ -150,68 +184,8 @@ function mvtsBasic_content() {
 	echo "<input id='contentChange' name='mvtsBasic[contentChange]' class='hide' size='40' type='text' value='{$options['contentChange']}' />";
 }
 
-function mvtsBasic_validate($input) {
-	// NOTE: THIS DOES NO INPUT VALIDATION!!! BE CAREFUL!
-	// UPDATE: SOME VALIDATION DONE
-	// Takes the input, sets it to a new variable and then returns it.
-	// Validation should take place on the new input before it is returned
-	// so that the unsanitized input never touches the database.
-
-	$newinput['mvtsOnOff'] = $input['mvtsOnOff'];
-	$newinput['mvtsTrack'] = $input['mvtsTrack'];
-	$newinput['target'] = $input['target'];
-	$newinput['testName'] = $input['testName'];
-
-	// set allowed values to an array
-	$allowed_testType = array('style', 'content');
-	// loop through allowed values array
-	foreach ($allowed_testType as $testType) {
-		// compair the input against allowed values
-		if ($input['selectType'] === $testType) {
-			// if it's an allowed value then save place it in the variable that gets returned
-			$newinput['selectType'] = $input['selectType'];
-		}
-		// if the input isn't an allowed value then we should not save it
-	}
-
-	// set allowed values to an array
-	$allowed_styleType = array('color', 'background-color', 'margin', 'font-size');
-	// loop through allowed values array
-	foreach ($allowed_styleType as $styleType) {
-		// compair the input against allowed values
-		if ($input['selectStyle'] === $styleType) {
-			// if it's an allowed value then save place it in the variable that gets returned
-			$newinput['selectStyle'] = $input['selectStyle'];
-		}
-		// if the input isn't an allowed value then we should not save it
-	}
-
-	$newinput['styleAtt'] = $input['styleAtt'];
-
-	// Change single quotes to double quotes
-	// SHOULD THIS MAYBE JUST ESCAPE THEM??? IE: str_replace("'", "\\\'", $input);
-	$input['contentChange'] = str_replace("'", '"', $input['contentChange']);
-	// Grab the list of allowed html tags for 'post' context
-	$allowedTags_content = wp_kses_allowed_html( 'post' );
-	// Strip bad tags - allowing the same as what's allowed in posts
-	// Posts context is probably not restrictive enough!
-	$newinput['contentChange'] = wp_kses($input['contentChange'], $allowedTags_content);
-
-	// REMEMBER THIS IS STILL (some of it) NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
-	return $newinput;
-}
-
-// create an admin page for settings
-add_action( 'admin_menu', 'register_mvts_menu_page' );
-
-if ( !function_exists( 'register_mvts_menu_page' ) ) {
-	function register_mvts_menu_page(){
-		add_menu_page( 'MVTS', 'MVTS', 'manage_options', 'mvts', 'mvts_menu_page', 'dashicons-welcome-widgets-menus', 6 );
-	}
-}
-
 // this is the output function for the added menu page
-if ( !function_exists( 'mvts_menu_page' ) ) {
+
 	function mvts_menu_page(){ ?>
 
 		<div class="wrap">
@@ -282,8 +256,9 @@ if ( !function_exists( 'mvts_menu_page' ) ) {
 				jQuery("#contentChange").parent().parent().removeClass("hid");
 			}
 		</script>
-	<?php }
-} // end !function_exists( 'mvts_menu_page' )
+	<?php } // end !function mvts_menu_page
+
+
 
 // Add an action at the wp_footer call that inlines the javascript test script
 add_action( 'wp_footer', 'inline_mvtsTest_scripts' );
