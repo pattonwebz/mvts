@@ -9,6 +9,21 @@ Author URI: http://www.pattonwebz.com/
 License: GPL2
 */
 
+// Activation function
+register_activation_hook( __FILE__, 'mvts_activation' );
+function mvts_activation() {
+    // Grab the existing options if they exist so we can add to them or
+    // create if needed.
+    $optionsBasic = get_option('mvtsBasic');
+    $optionsAdvanced = get_option('mvtsAdvanced');
+
+    // If yoast GA is active then we should save an obtion to tell us that the
+    // default 'ga' object is probably renamed.
+    if( is_yoast_ga_plugin_active() ) {
+        $optionsAdvanced[GAObject] = '__gaTracker';
+        update_option( 'mvtsAdvanced', $optionsAdvanced )
+    }
+}
 
 // The heart of the plugin is the javascript testing library and companion
 // testing script. These are enqueued by this function.
@@ -44,9 +59,11 @@ if ( !function_exists( 'register_mvts_menu_page' ) ) {
 	}
 }
 
-add_action( 'admin_init', 'register_mvts_settings' );
 
-function register_mvts_settings() {
+// Register basic settings
+add_action( 'admin_init', 'register_mvtsBasic_settings' );
+
+function register_mvtsBasic_settings() {
 
 	// register a settings group
 	register_setting( 'mvtsBasic-group', 'mvtsBasic', 'mvtsBasic_validate' );
@@ -64,7 +81,7 @@ function register_mvts_settings() {
 	add_settings_field('styleAtt', 'Attribute to pass', 'mvtsBasic_style_att', 'mvtsBasic-group', 'mvtsBasic');
 	add_settings_field('contentChange', 'New content to use in test', 'mvtsBasic_content', 'mvtsBasic-group', 'mvtsBasic');
 
-} // end function register_mvts_settings
+} // end function register_mvtsBasic_settings
 
 // The 'Basic' section of settings has some opening text.
 function basic_section_text() {
@@ -186,6 +203,41 @@ function mvtsBasic_content() {
 
 // this is the output function for the added menu page
 
+
+// Register basic settings
+add_action( 'admin_init', 'register_mvtsAdvanced_settings' );
+
+function register_mvtsAdvanced_settings() {
+
+	// register a settings group
+	register_setting( 'mvtsAdvanced-group', 'mvtsAdvanced', 'mvtsAdvanced_validate' );
+
+    // add a section to the settings group
+	add_settings_section('mvtsAdvanced', 'MVTS Adv Settings', 'advanced_section_text', 'mvtsAdvanced-group');
+
+    // add several fields to the section in the settings group
+	add_settings_field('GAObject', 'Set the Google Analytics Object Name', 'mvtsGAObject_string','mvtsAdvanced-group', 'mvtsAdvanced');
+
+} // end function register_mvtsBasic_settings
+
+// This is the generic test name
+// Type: Text
+function mvtsGAObject_string() {
+	// grab the options array
+	$options = get_option('mvtsAdvanced');
+	// echo a text box
+	// this is an identifier for the test used in actions and
+	// labels pushed to the tracker
+	$options['GAObject']=esc_textarea($options['GAObject']);
+	echo "<input id='GAObject' name='mvtsBasic[GAObject]' size='40' type='text' value='{$options['GAObject']}' />";
+}
+
+// The 'Advanced' section of settings has some opening text.
+function advanced_section_text() {
+	// This is the opening message for the settings section.
+	echo '<p>The advanced settings for the plugin can be found below. Only change these if your comfortable doing so.</p>';
+} // end advanced_section_text
+
 function mvts_menu_page(){
     // this is mostly html with some php to output the settings specified in a
     // different set of functions ?>
@@ -209,11 +261,15 @@ function mvts_menu_page(){
 			</div>
 			<div id="advanced-settings" class="tab-panel">
 				<p>NOTE: For future use.</p>
+                <?php
+                if( is_yoast_ga_plugin_active() ) {
+                    ?><p>Yoast's GA plugin is active. The below should probably be set to '__gaTracker'</p><?php
+                }
 				<form method="post" action="options.php">
 					<?php
 					settings_fields( 'mvtsAdvanced-group' );
 					do_settings_sections( 'mvtsAdvanced-group' );
-					//submit_button();
+					submit_button();
 					?>
 				</form>
 			</div>
@@ -274,6 +330,68 @@ function mvts_menu_page(){
 	</script>
 <?php } // end !function mvts_menu_page
 
+function mvtsBasic_validate($input) {
+	// NOTE: THIS DOES NO INPUT VALIDATION!!! BE CAREFUL!
+	// UPDATE: SOME VALIDATION DONE
+	// Takes the input, sets it to a new variable and then returns it.
+	// Validation should take place on the new input before it is returned
+	// so that the unsanitized input never touches the database.
+
+	$newinput['mvtsOnOff'] = $input['mvtsOnOff'];
+	$newinput['mvtsTrack'] = $input['mvtsTrack'];
+	$newinput['target'] = $input['target'];
+	$newinput['testName'] = $input['testName'];
+
+	// set allowed values to an array
+	$allowed_testType = array('style', 'content');
+	// loop through allowed values array
+	foreach ($allowed_testType as $testType) {
+		// compair the input against allowed values
+		if ($input['selectType'] === $testType) {
+			// if it's an allowed value then save place it in the variable that gets returned
+			$newinput['selectType'] = $input['selectType'];
+		}
+		// if the input isn't an allowed value then we should not save it
+	}
+
+	// set allowed values to an array
+	$allowed_styleType = array('color', 'background-color', 'margin', 'font-size');
+	// loop through allowed values array
+	foreach ($allowed_styleType as $styleType) {
+		// compair the input against allowed values
+		if ($input['selectStyle'] === $styleType) {
+			// if it's an allowed value then save place it in the variable that gets returned
+			$newinput['selectStyle'] = $input['selectStyle'];
+		}
+		// if the input isn't an allowed value then we should not save it
+	}
+
+	$newinput['styleAtt'] = $input['styleAtt'];
+
+	// Change single quotes to double quotes
+	// SHOULD THIS MAYBE JUST ESCAPE THEM??? IE: str_replace("'", "\\\'", $input);
+	$input['contentChange'] = str_replace("'", '"', $input['contentChange']);
+	// Grab the list of allowed html tags for 'post' context
+	$allowedTags_content = wp_kses_allowed_html( 'post' );
+	// Strip bad tags - allowing the same as what's allowed in posts
+	// Posts context is probably not restrictive enough!
+	$newinput['contentChange'] = wp_kses($input['contentChange'], $allowedTags_content);
+
+	// REMEMBER THIS IS STILL (some of it) NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
+	return $newinput;
+}
+
+function mvtsAdvanced_validate($input) {
+	// NOTE: THIS DOES NO INPUT VALIDATION!!! BE CAREFUL!
+	// Takes the input, sets it to a new variable and then returns it.
+	// Validation should take place on the new input before it is returned
+	// so that the unsanitized input never touches the database.
+	$newinput['GAObject'] = $input['GAObject'];
+	// REMEMBER THIS IS STILL NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
+	return $newinput;
+}
+
+
 // Add an action at the wp_footer call that enqueues the test library and
 // test script as well as adding some data to the header with
 // wp_localize_script() for use by the test scipt
@@ -299,5 +417,11 @@ function inline_mvtsTest_scripts() {
     }
 }
 
-
+// detect if Yoast's GA plugin is active - it's know to change the default
+// tracking object name which is an issue for pushing data reliably
+function is_yoast_ga_plugin_active() {
+    if( is_plugin_active('google-analytics-for-wordpress') ) {
+        return true;
+    }
+}
 ?>
