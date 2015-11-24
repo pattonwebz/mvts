@@ -186,104 +186,104 @@ function mvtsBasic_content() {
 
 // this is the output function for the added menu page
 
-	function mvts_menu_page(){ ?>
+function mvts_menu_page(){
+    // this is mostly html with some php to output the settings specified in a
+    // different set of functions ?>
 
-		<div class="wrap">
-			<h2>MVTS Plugin</h2>
-			<div class="nav-tab-wrapper">
-				<a href="#basic-settings" class="nav-tab" data-target="#basic-settings">Basic Settings</a>
-				<a href="#advanced-settings" class="nav-tab" data-target="#advanced-settings">Advanced Settings</a>
+	<div class="wrap">
+		<h2>MVTS Plugin</h2>
+		<div class="nav-tab-wrapper">
+			<a href="#basic-settings" class="nav-tab" data-target="#basic-settings">Basic Settings</a>
+			<a href="#advanced-settings" class="nav-tab" data-target="#advanced-settings">Advanced Settings</a>
+		</div>
+		<div class="tab-content">
+			<div id="basic-settings" class="tab-panel active">
+				<form method="post" action="options.php">
+					<?php
+					// outputs the mvtsBasic-group of settings.
+					settings_fields( 'mvtsBasic-group' );
+					do_settings_sections( 'mvtsBasic-group' );
+					submit_button();
+					?>
+				</form>
 			</div>
-			<div class="tab-content">
-				<div id="basic-settings" class="tab-panel active">
-					<form method="post" action="options.php">
-						<?php
-						// outputs the mvtsBasic-group of settings.
-						settings_fields( 'mvtsBasic-group' );
-						do_settings_sections( 'mvtsBasic-group' );
-						submit_button();
-						?>
-					</form>
-				</div>
-				<div id="advanced-settings" class="tab-panel">
-					<p>NOTE: For future use.</p>
-					<form method="post" action="options.php">
-						<?php
-						settings_fields( 'mvtsAdvanced-group' );
-						do_settings_sections( 'mvtsAdvanced-group' );
-						//submit_button();
-						?>
-					</form>
-				</div>
+			<div id="advanced-settings" class="tab-panel">
+				<p>NOTE: For future use.</p>
+				<form method="post" action="options.php">
+					<?php
+					settings_fields( 'mvtsAdvanced-group' );
+					do_settings_sections( 'mvtsAdvanced-group' );
+					//submit_button();
+					?>
+				</form>
 			</div>
 		</div>
+	</div>
 
-		<!-- Inline required styles and scripts on the admin page. May no longer be required. -->
-		<style type="text/css">
-			.tab-content {
-				/*max-width:650px;*/
-				margin:0 auto;
-			}
-			.tab-content .tab-panel {
-				display:none;
-			}
-			.tab-content .tab-panel.active {
-				display:block;
-			}
-			.hid {
-				display: none;
-			}
-			.hid.show{
-				display:inherit;
-			}
-		</style>
-		<!-- This script adds or removes classes on the tabs based on click/active state -->
-		<!-- Also does a show/hide based on value of a select box -->
-		<script type="text/javascript">
-			jQuery( ".nav-tab-wrapper .nav-tab" ).click(function( event ) {
-				event.preventDefault();
-	  			var target = jQuery(this).attr("data-target");
-	  			jQuery( ".tab-content .active" ).removeClass('active');
-	  			jQuery(target).addClass('active');
-	  			console.log(target);
-			});
-			jQuery(".hide").parent().parent().addClass("hid");
-			var showHideVal = jQuery( "#selectType" ).val();
-			if (showHideVal == "style") {
-				jQuery("#selectStyle").parent().parent().removeClass("hid");
-				jQuery("#styleAtt").parent().parent().removeClass("hid");
-			} else if (showHideVal == "content") {
-				jQuery("#contentChange").parent().parent().removeClass("hid");
-			}
-		</script>
-	<?php } // end !function mvts_menu_page
+	<!-- Inline required styles and scripts on the admin page. May no longer be required. -->
+	<style type="text/css">
+		.tab-content {
+			/*max-width:650px;*/
+			margin:0 auto;
+		}
+		.tab-content .tab-panel {
+			display:none;
+		}
+		.tab-content .tab-panel.active {
+			display:block;
+		}
+		.hid {
+			display: none;
+		}
+		.hid.show{
+			display:inherit;
+		}
+	</style>
+	<!-- This script adds or removes classes on the tabs based on click/active state -->
+	<!-- Also does a show/hide based on value of a select box -->
+	<script type="text/javascript">
+		jQuery( ".nav-tab-wrapper .nav-tab" ).click(function( event ) {
+			event.preventDefault();
+  			var target = jQuery(this).attr("data-target");
+  			jQuery( ".tab-content .active" ).removeClass('active');
+  			jQuery(target).addClass('active');
+  			console.log(target);
+		});
+		jQuery(".hide").parent().parent().addClass("hid");
+		var showHideVal = jQuery( "#selectType" ).val();
+		if (showHideVal == "style") {
+			jQuery("#selectStyle").parent().parent().removeClass("hid");
+			jQuery("#styleAtt").parent().parent().removeClass("hid");
+		} else if (showHideVal == "content") {
+			jQuery("#contentChange").parent().parent().removeClass("hid");
+		}
+	</script>
+<?php } // end !function mvts_menu_page
 
-
-
-// Add an action at the wp_footer call that inlines the javascript test script
+// Add an action at the wp_footer call that enqueues the test library and
+// test script as well as adding some data to the header with
+// wp_localize_script() for use by the test scipt
 add_action( 'wp_footer', 'inline_mvtsTest_scripts' );
 
-if ( !function_exists( 'inline_mvtsTest_scripts' ) ) {
-    function inline_mvtsTest_scripts() {
-    	$options = get_option('mvtsBasic');
+function inline_mvtsTest_scripts() {
+    // get the options array
+	$options = get_option('mvtsBasic');
+    // if the plugin is turned on
+    if ($options['mvtsOnOff'] == '1') {
+        // enque the library and test script
+        wp_enqueue_script( 'cohorts' );
+        wp_enqueue_script( 'mvtsTestScript' );
 
-        /********************************* */
+        // output some of the data from the options array for use by
+        // the test script in the <head> section using wp_localize_script
+        wp_localize_script( 'mvtsTestScript', 'testVariables', array(
+            'testTrack'     => $options[mvtsTrack],
+            'testName'  => $options[testName],
+            'testType'  => $options[selectType],
+            'testTarget'    => $options[target] )
+        );
+    }
+}
 
-        if ($options['mvtsOnOff'] == '1') {
-            wp_enqueue_script( 'cohorts' );
-            wp_enqueue_script( 'mvtsTestScript' );
-            wp_localize_script( 'mvtsTestScript', 'testVariables', array(
-                'testTrack'     => $options[mvtsTrack],
-                'testName'  => $options[testName],
-                'testType'  => $options[selectType],
-                'testTarget'    => $options[target] )
-            );
-        }
-
-        /********************************* */
-
-	}
-
-} // end !function_exists( 'inline_mvtsTest_scripts' )
 
 ?>
