@@ -21,7 +21,7 @@ function mvts_activation() {
     // default 'ga' object is probably renamed.
     if( is_yoast_ga_plugin_active() ) {
         $optionsAdvanced[GAObject] = '__gaTracker';
-        update_option( 'mvtsAdvanced', $optionsAdvanced )
+        update_option( 'mvtsAdvanced', $optionsAdvanced );
     }
 }
 
@@ -265,6 +265,7 @@ function mvts_menu_page(){
                 if( is_yoast_ga_plugin_active() ) {
                     ?><p>Yoast's GA plugin is active. The below should probably be set to '__gaTracker'</p><?php
                 }
+                ?>
 				<form method="post" action="options.php">
 					<?php
 					settings_fields( 'mvtsAdvanced-group' );
