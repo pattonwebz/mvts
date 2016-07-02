@@ -22,7 +22,9 @@ function mvts_activation() {
     if( is_yoast_ga_plugin_active() ) {
         $optionsAdvanced[GAObject] = '__gaTracker';
         update_option( 'mvtsAdvanced', $optionsAdvanced );
+        add_option( 'mvtst', 'val');
     }
+    add_option( 'mvtsf', 'val');
 }
 
 // The heart of the plugin is the javascript testing library and companion
@@ -32,7 +34,7 @@ function mvts_activation() {
  * Enqueue Javascript
  * ============================================================= */
 
-// register and enqueue the dependancy scripts - cohorts.js, jquery library
+// register the dependancy scripts - enqueued later
 add_action( 'wp_enqueue_scripts', 'load_mvts_scripts' );
 
 if ( !function_exists( 'load_mvts_scripts' ) ) {
@@ -400,9 +402,10 @@ add_action( 'wp_footer', 'inline_mvtsTest_scripts' );
 
 function inline_mvtsTest_scripts() {
     // get the options array
-	$options = get_option('mvtsBasic');
+	$optionsBasic = get_option('mvtsBasic');
+    $optionsAdvanced = get_option('mvtsAdvanced');
     // if the plugin is turned on
-    if ($options['mvtsOnOff'] == '1') {
+    if ($optionsBasic['mvtsOnOff'] == '1') {
         // enque the library and test script
         wp_enqueue_script( 'cohorts' );
         wp_enqueue_script( 'mvtsTestScript' );
@@ -410,10 +413,11 @@ function inline_mvtsTest_scripts() {
         // output some of the data from the options array for use by
         // the test script in the <head> section using wp_localize_script
         wp_localize_script( 'mvtsTestScript', 'testVariables', array(
-            'testTrack'     => $options[mvtsTrack],
-            'testName'  => $options[testName],
-            'testType'  => $options[selectType],
-            'testTarget'    => $options[target] )
+            'testTrack'     => $optionsBasic[mvtsTrack],
+            'testName'  => $optionsBasic[testName],
+            'testType'  => $optionsBasic[selectType],
+            'testTarget'    => $optionsBasic[target],
+            'customGAObject'  => $optionsAdvanced[GAObject] )
         );
     }
 }
@@ -421,8 +425,9 @@ function inline_mvtsTest_scripts() {
 // detect if Yoast's GA plugin is active - it's know to change the default
 // tracking object name which is an issue for pushing data reliably
 function is_yoast_ga_plugin_active() {
-    if( is_plugin_active('google-analytics-for-wordpress') ) {
+    if( is_plugin_active('google-analytics-for-wordpress/googleanalytics.php') ) {
         return true;
     }
+    return false;
 }
 ?>
