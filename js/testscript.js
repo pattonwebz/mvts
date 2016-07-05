@@ -16,14 +16,14 @@
 							onChosen: function() {
 								if (testVariables.testType == 'style') {
 									// make style change
+									$(testVariables.testTarget).attr( "style", $(testVariables.testTarget).attr( "style"); + testVariables.selectStyle: testVariables.styleAtt);
 								}
 								if (testVariables.testType == 'content') {
 									// make content change
 								}
-								//<?php if($options['selectType'] == 'style'){ ?>
+								if($options['selectType'] == 'style'){ ?>
 									//$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
 								//<?php } ?>
-								$(testVariables.testTarget).attr( "style", $(testVariables.testTarget).attr( "style"); + testVariables.selectStyle: testVariables.styleAtt);
 								//<?php if($options['selectType'] == 'content'){ ?>
 									//$('<?php echo $options[target]; ?>').html( '<?php echo $options[contentChange]; ?>');
 								//<?php } ?>
