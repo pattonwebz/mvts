@@ -23,6 +23,7 @@
 								//<?php if($options['selectType'] == 'style'){ ?>
 									//$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
 								//<?php } ?>
+								$(testVariables.testTarget).attr( "style", $(testVariables.testTarget).attr( "style"); + testVariables.selectStyle: testVariables.styleAtt);
 								//<?php if($options['selectType'] == 'content'){ ?>
 									//$('<?php echo $options[target]; ?>').html( '<?php echo $options[contentChange]; ?>');
 								//<?php } ?>
@@ -61,8 +62,9 @@
 				}
 				});
 				//CLICK FUNCTION -- NEEDS TO BE READDED!!!
-				//$('<?php echo $options[target]; ?>').click(function() {
-					//<?php echo $options[testName]; ?>.event('Converted'); // Track any events with your storage adapter
-				//});
+				//READDED??
+				$(testVariables.testTarget).click(function() {
+					testName.trackEvent('Converted'); // Track any events with your storage adapter
+				});
 
 			});
