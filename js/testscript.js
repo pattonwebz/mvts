@@ -20,6 +20,7 @@
 								}
 								if (testVariables.testType == 'content') {
 									// make content change
+									$(testVariables.testTarget).html(testVariables.contentChange);
 								}
 								if($options['selectType'] == 'style'){ ?>
 									//$('<?php echo $options[target]; ?>').attr( "style", $('<?php echo $options[target]; ?>').attr( "style") + "; <?php echo $options[selectStyle]; ?>: <?php echo $options[styleAtt]; ?>");
