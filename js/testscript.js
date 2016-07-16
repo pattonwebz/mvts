@@ -16,7 +16,7 @@
 							onChosen: function() {
 								if (testVariables.testType == 'style') {
 									// make style change
-									$(testVariables.testTarget).attr( "style", $(testVariables.testTarget).attr( "style"); + testVariables.selectStyle: testVariables.styleAtt);
+									$(testVariables.testTarget).attr( "style", $(testVariables.testTarget).attr( "style") + '; ' + testVariables.selectStyle: testVariables.styleAtt));
 								}
 								if (testVariables.testType == 'content') {
 									// make content change
