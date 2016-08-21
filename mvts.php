@@ -404,6 +404,7 @@ function inline_mvtsTest_scripts() {
     // get the options array
 	$optionsBasic = get_option('mvtsBasic');
     $optionsAdvanced = get_option('mvtsAdvanced');
+	error_log(print_r($optionsBasic, true),0);
 
     // some debug code
     //print_r($optionsBasic);
@@ -417,12 +418,16 @@ function inline_mvtsTest_scripts() {
 
         // output some of the data from the options array for use by
         // the test script in the <head> section using wp_localize_script
-        wp_localize_script( 'mvtsTestScript', 'testVariables', array(
-            'testTrack'     => $optionsBasic['mvtsTrack'],
-            'testName'  => $optionsBasic['testName'],
-            'testType'  => $optionsBasic['selectType'],
-            'testTarget'    => $optionsBasic['target'],
-            'customGAObject'  => $optionsAdvanced['GAObject'] )
+        wp_localize_script( 'mvtsTestScript', 'testVariables',
+			array(
+	            'testTrack'     	=> $optionsBasic['mvtsTrack'],
+	            'testName'  		=> $optionsBasic['testName'],
+	            'testType'  		=> $optionsBasic['selectType'],
+	            'testTarget'    	=> $optionsBasic['target'],
+				'selectStyle'		=> $optionsBasic['selectStyle'],
+				'styleAtt'			=> $optionsBasic['styleAtt'],
+	            'customGAObject'  	=> $optionsAdvanced['GAObject']
+			)
         );
     }
 }
