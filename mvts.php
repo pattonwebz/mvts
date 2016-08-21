@@ -43,8 +43,8 @@ if ( !function_exists( 'load_mvts_scripts' ) ) {
         // not an admin page and plugin is turned on
         if ( !is_admin() && $options['mvtsOnOff'] == '1' ) {
 			// wp_register_script( 'cohorts', get_bloginfo('wpurl') . '/wp-content/plugins/mvts/js/cohorts.js', array(), 1.0, true );
-			wp_register_script( 'cohorts', plugin_dir_url( __FILE__ ) . '/js/cohorts.min.js', array(), 1.0, true );
-            wp_register_script( 'mvtsTestScript', plugin_dir_url( __FILE__ ) . '/js/testscript.js', array('cohorts','jquery'), 1.0, true );
+			wp_register_script( 'cohorts', plugin_dir_url( __FILE__ ) . 'js/cohorts.min.js', array(), 1.0, true );
+            wp_register_script( 'mvtsTestScript', plugin_dir_url( __FILE__ ) . 'js/testscript.js', array('cohorts','jquery'), 1.0, true );
         }
     }
 }
@@ -408,7 +408,7 @@ function inline_mvtsTest_scripts() {
     // some debug code
     //print_r($optionsBasic);
     //print_r($mvtsAdvanced);
-    
+
     // if the plugin is turned on
     if ($optionsBasic['mvtsOnOff'] == '1') {
         // enque the library and test script
