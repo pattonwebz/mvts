@@ -426,6 +426,7 @@ function inline_mvtsTest_scripts() {
 	            'testTarget'    	=> $optionsBasic['target'],
 				'selectStyle'		=> $optionsBasic['selectStyle'],
 				'styleAtt'			=> $optionsBasic['styleAtt'],
+				'contentChange'		=> $optionsBasic['contentChange'],
 	            'customGAObject'  	=> $optionsAdvanced['GAObject']
 			)
         );
