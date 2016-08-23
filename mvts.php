@@ -334,8 +334,8 @@ function mvts_menu_page(){
 <?php } // end !function mvts_menu_page
 
 function mvtsBasic_validate($input) {
-	// NOTE: THIS DOES NO INPUT VALIDATION!!! BE CAREFUL!
-	// UPDATE: SOME VALIDATION DONE
+	// NOTE: THIS DOES NOT VALIDATE ALL INPUT!!! BE CAREFUL!
+
 	// Takes the input, sets it to a new variable and then returns it.
 	// Validation should take place on the new input before it is returned
 	// so that the unsanitized input never touches the database.
@@ -385,12 +385,13 @@ function mvtsBasic_validate($input) {
 }
 
 function mvtsAdvanced_validate($input) {
-	// NOTE: THIS DOES NO INPUT VALIDATION!!! BE CAREFUL!
+	// NOTE: NEEDS PROPER VALIDATION
 	// Takes the input, sets it to a new variable and then returns it.
 	// Validation should take place on the new input before it is returned
 	// so that the unsanitized input never touches the database.
 	$newinput['GAObject'] = $input['GAObject'];
 	// REMEMBER THIS IS STILL NOT VALIDATED/SANITIZED BEFORE IT'S RETURNED
+	$newinput = sanitize_text_field($newinput);
 	return $newinput;
 }
 
