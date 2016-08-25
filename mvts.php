@@ -3,7 +3,7 @@
 Plugin Name: Optiwebz MVTS
 Plugin URI: http://www.pattonwebz.com/resources/
 Description: A powerful split-testing (MVT) plugin for WordPress. Functional but still in early development.
-Version: 0.2
+Version: 0.2.1
 Author: William Patton
 Author URI: http://www.pattonwebz.com/
 License: GPL2
@@ -20,7 +20,7 @@ function mvts_activation() {
     // If yoast GA is active then we should save an obtion to tell us that the
     // default 'ga' object is probably renamed.
     if( is_yoast_ga_plugin_active() ) {
-        $optionsAdvanced[GAObject] = '__gaTracker';
+        $optionsAdvanced['GAObject'] = '__gaTracker';
         update_option( 'mvtsAdvanced', $optionsAdvanced );
         add_option( 'mvtst', 'val');
     }
@@ -405,7 +405,6 @@ function inline_mvtsTest_scripts() {
     // get the options array
 	$optionsBasic = get_option('mvtsBasic');
     $optionsAdvanced = get_option('mvtsAdvanced');
-	error_log(print_r($optionsBasic, true),0);
 
     // some debug code
     //print_r($optionsBasic);
@@ -442,4 +441,3 @@ function is_yoast_ga_plugin_active() {
     }
     return false;
 }
-?>
