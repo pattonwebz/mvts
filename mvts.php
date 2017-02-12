@@ -3,7 +3,7 @@
 Plugin Name: Optiwebz MVTS
 Plugin URI: http://www.pattonwebz.com/resources/
 Description: A powerful split-testing (MVT) plugin for WordPress. Functional but still in early development.
-Version: 0.2.1
+Version: 0.2.2
 Author: William Patton
 Author URI: http://www.pattonwebz.com/
 License: GPL2
