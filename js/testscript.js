@@ -46,8 +46,14 @@ $(document).ready(function() {
 					// note: using 'ga' should work in most situations however Yoasts GA
 					// plugin in Universal mode sets it to __gaTracker to prevent conflits
 					// find a way to detect the custom object and set this dynamically
-					__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);
-					//ga('send', 'event', category, action, opt_label, opt_value, int_hit);
+
+					if (window.ga) {
+						//console.log('ga object');
+						ga('send', 'event', category, action, opt_label, opt_value, int_hit);
+					} else if (window.__gaTracker) {
+						//console.log('__gaTracker object');
+						__gaTracker('send', 'event', category, action, opt_label, opt_value, int_hit);
+					}
 				} else {
 					console.log ('GA probably not defined or using a different identifier');
 				}

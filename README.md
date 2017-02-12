@@ -2,7 +2,7 @@ NOTE: Major rework coming between version 0.2 and 0.3 to follow better standards
 
 # WordPress Split Testing Plugin - MVTS
 
-This plugin provides an interface to easily configure split tests on your WordPress site. 
+This plugin provides an interface to easily configure split tests on your WordPress site.
 
 Defining the test group, handling consistency between visits and sending the results to an analytics platform is taken care of.
 
@@ -25,11 +25,11 @@ _More advanced users are welcome to chain their target selector. For example: `#
 
 #### Style Tests
 
-Style tests are performed by making changes to the CSS styles of the element. The plugin offers some pre-defined css options such as colors, margins and font-sizes. 
+Style tests are performed by making changes to the CSS styles of the element. The plugin offers some pre-defined css options such as colors, margins and font-sizes.
 
 Select your desired change and enter the value to change it to (the values are the same values you would specify via CSS).
 
-TODO: ADD ABILITY TO ADD OWN STYLE RULES. 
+TODO: ADD ABILITY TO ADD OWN STYLE RULES.
 TODO: ADD ABILITY TO ADD/REMOVE CSS CLASSES
 
 #### Content Tests
@@ -40,12 +40,16 @@ Simply enter what you want to change the content to.
 
 ##### Version Log
 
+Version 0.2.2:
+
+* Improved client side detection of the Google Analytics Tracker object
+
 Version 0.2:
 
 * Added ability to run content based changes - change text in buttons, taglines or whole chunks of markup
 * Improved validation on the data
 * Slightly improved interface
-* 2 bugfixes with unescaped (and escaped) html 
+* 2 bugfixes with unescaped (and escaped) html
   * unescaped html would cause admin page to break layout if single quotes were entered
   ** excaped html would cause the JavaScript test code to fail during content tests
 
@@ -65,5 +69,3 @@ Without certain things this plugin wouldn't be possible. Here's a non-exclusive 
 1. WordPress
 2. jQuery
 3. Cohorts
-
-
